@@ -43,6 +43,7 @@ RUN composer install --optimize-autoloader --no-dev --no-scripts || composer ins
 
 # Créer les répertoires nécessaires
 RUN mkdir -p /var/www/html/var/cache /var/www/html/var/log \
+    && mkdir -p /var/www/html/config/serialization \
     && mkdir -p /run/nginx \
     && mkdir -p /var/log/supervisor
 
