@@ -33,14 +33,11 @@ WORKDIR /var/www/html
 # Copier les fichiers du projet
 COPY . .
 
-# Copier .env.prod vers .env pour la production
-RUN cp .env.prod .env || cp .env.example .env || echo "APP_ENV=prod" > .env
+# Créer le fichier .env à partir de .env.example
+RUN cp .env.example .env
 
-# Installer les dépendances PHP (avec dev pour DoctrineFixturesBundle)
-RUN composer install --optimize-autoloader --no-dev --no-scripts
-
-# Exécuter les scripts post-install manuellement (après que .env existe)
-RUN php bin/console cache:clear --env=prod || true
+# Installer les dépendances PHP sans exécuter les scripts
+RUN composer install --optimize-autoloader --no-dev --no-scripts || composer install --optimize-autoloader --no-scripts
 
 # Copy custom PHP-FPM configuration
 COPY docker/www.conf /usr/local/etc/php-fpm.d/www.conf
