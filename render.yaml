@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: planb-backend
+    env: php
+    region: frankfurt
+    plan: free
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+      php bin/console lexik:jwt:generate-keypair --skip-if-exists
+      php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
+      php bin/console cache:clear --env=prod
+    startCommand: php -S 0.0.0.0:$PORT -t public
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: APP_DEBUG
+        value: 0
+      - key: APP_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: planb-db
+          property: connectionString
+      - key: CORS_ALLOW_ORIGIN
+        value: ^https://.*\.netlify\.app$
+      - key: JWT_SECRET_KEY
+        value: config/jwt/private.pem
+      - key: JWT_PUBLIC_KEY
+        value: config/jwt/public.pem
+      - key: JWT_PASSPHRASE
+        generateValue: true
+      - key: MAILER_DSN
+        value: smtp://localhost
+
+databases:
+  - name: planb-db
+    databaseName: planb
+    user: planb
+    region: frankfurt
+    plan: free

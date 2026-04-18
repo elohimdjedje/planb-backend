@@ -1,0 +1,38 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block content %}
+    <h1 style="color: #FF6B35; margin-top: 0;">Bienvenue sur Plan B ! 🎉</h1>
+    
+    <p>Bonjour <strong>{{ user.firstName }}</strong>,</p>
+    
+    <p>Merci de vous être inscrit sur Plan B, la plateforme de petites annonces pour l'Afrique de l'Ouest.</p>
+    
+    <p>Pour commencer à utiliser votre compte, veuillez vérifier votre adresse email en cliquant sur le bouton ci-dessous :</p>
+    
+    <div style="text-align: center;">
+        <a href="{{ verificationUrl }}" class="button">Vérifier mon email</a>
+    </div>
+    
+    <p style="font-size: 14px; color: #666;">
+        Ou copiez ce lien dans votre navigateur :<br>
+        <a href="{{ verificationUrl }}" style="color: #FF6B35; word-break: break-all;">{{ verificationUrl }}</a>
+    </p>
+    
+    <p><strong>Ce lien expire dans 24 heures.</strong></p>
+    
+    <p>Une fois votre email vérifié, vous pourrez :</p>
+    <ul>
+        <li>✅ Publier vos annonces</li>
+        <li>✅ Sauvegarder vos favoris</li>
+        <li>✅ Contacter les vendeurs</li>
+        <li>✅ Gérer votre profil</li>
+    </ul>
+    
+    <p>Si vous avez des questions, n'hésitez pas à nous contacter.</p>
+    
+    <p>À bientôt sur Plan B !</p>
+    
+    <p style="margin-top: 30px;">
+        <strong>L'équipe Plan B</strong>
+    </p>
+{% endblock %}

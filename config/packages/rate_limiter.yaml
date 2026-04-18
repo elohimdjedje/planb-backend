@@ -1,0 +1,43 @@
+framework:
+    rate_limiter:
+        # Protection contre brute force login (5 tentatives par 15 minutes)
+        login:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '15 minutes'
+            
+        # Limite d'inscription (5 par heure depuis une même IP)
+        register:
+            policy: 'fixed_window'
+            limit: 5
+            interval: '1 hour'
+            
+        # Envoi de SMS OTP (3 par 10 minutes pour éviter spam)
+        send_sms:
+            policy: 'fixed_window'
+            limit: 3
+            interval: '10 minutes'
+
+        # Vérification 2FA (5 tentatives par 15 minutes - durci)
+        two_factor_verify:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '15 minutes'
+
+        # Réinitialisation mot de passe (5 par 15 minutes)
+        password_reset:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '15 minutes'
+            
+        # Création d'annonces (10 par heure max)
+        create_listing:
+            policy: 'sliding_window'
+            limit: 10
+            interval: '1 hour'
+            
+        # API globale (60 requêtes par minute)
+        api_global:
+            policy: 'token_bucket'
+            limit: 60
+            rate: { interval: '1 minute', amount: 60 }

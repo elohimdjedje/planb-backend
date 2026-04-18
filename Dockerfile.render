@@ -1,0 +1,51 @@
+FROM php:8.2-cli
+
+# Installation des dépendances système
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    curl \
+    libzip-dev \
+    libpq-dev \
+    libicu-dev \
+    libonig-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Installation des extensions PHP
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install \
+    pdo \
+    pdo_pgsql \
+    zip \
+    intl \
+    opcache \
+    gd \
+    mbstring
+
+# Installation de Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Copier les fichiers du projet
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+
+COPY . .
+
+# Finaliser l'installation
+RUN composer dump-autoload --optimize
+
+# Créer les répertoires nécessaires
+RUN mkdir -p var/cache var/log public/uploads \
+    && chmod -R 777 var public/uploads
+
+# Exposer le port
+EXPOSE 8000
+
+# Commande de démarrage
+CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]

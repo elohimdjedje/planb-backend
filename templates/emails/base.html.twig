@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Plan B{% endblock %}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .email-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: #FF6B35;
+            margin-bottom: 10px;
+        }
+        .content {
+            margin-bottom: 30px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #FF6B35;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .button:hover {
+            background-color: #e55a2b;
+        }
+        .code-box {
+            background-color: #f8f9fa;
+            border: 2px dashed #FF6B35;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 5px;
+            color: #FF6B35;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+        }
+        .footer a {
+            color: #FF6B35;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">Plan B</div>
+            <p style="color: #666; margin: 0;">Plateforme de petites annonces</p>
+        </div>
+        
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+        
+        <div class="footer">
+            <p>Cet email a été envoyé automatiquement par Plan B — merci de ne pas y répondre.</p>
+            <p style="margin-top: 8px;">
+                📧 Besoin d'aide ? Contactez notre support : 
+                <a href="mailto:{{ supportEmail | default('aide.planb@gmail.com') }}">{{ supportEmail | default('aide.planb@gmail.com') }}</a>
+            </p>
+            <p>
+                <a href="{{ appUrl }}/contact">Contact</a> | 
+                <a href="{{ appUrl }}/terms">Conditions d'utilisation</a> | 
+                <a href="{{ appUrl }}/privacy">Confidentialité</a>
+            </p>
+            <p style="margin-top: 10px;">
+                Si vous n'avez pas demandé cet email, vous pouvez l'ignorer en toute sécurité.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

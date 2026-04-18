@@ -1,0 +1,26 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block content %}
+    <h1 style="color: #28a745; margin-top: 0;">✅ Email vérifié avec succès !</h1>
+    
+    <p>Bonjour <strong>{{ user.firstName }}</strong>,</p>
+    
+    <p>Félicitations ! Votre adresse email a été vérifiée avec succès.</p>
+    
+    <p>Votre compte Plan B est maintenant entièrement activé. Vous pouvez :</p>
+    <ul>
+        <li>✅ Publier vos annonces</li>
+        <li>✅ Sauvegarder vos favoris</li>
+        <li>✅ Contacter les vendeurs</li>
+        <li>✅ Recevoir des notifications importantes</li>
+        <li>✅ Gérer votre profil</li>
+    </ul>
+    
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="{{ appUrl }}/publish" class="button">Publier ma première annonce</a>
+    </div>
+    
+    <p>Merci de faire confiance à Plan B !</p>
+    
+    <p>Cordialement,<br><strong>L'équipe Plan B</strong></p>
+{% endblock %}

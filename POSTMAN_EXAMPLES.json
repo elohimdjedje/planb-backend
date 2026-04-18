@@ -1,0 +1,124 @@
+{
+  "info": {
+    "name": "Plan B API Tests",
+    "description": "Collection de tests pour l'API Plan B",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@planb.ci\",\n  \"password\": \"Password123!\",\n  \"phone\": \"+22507123456\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"country\": \"CI\",\n  \"city\": \"Abidjan\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/v1/auth/register",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"test@planb.ci\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/v1/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8000/api/v1/users/me",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "users", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Listings",
+      "item": [
+        {
+          "name": "Get All Listings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8000/api/v1/listings",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "listings"]
+            }
+          }
+        },
+        {
+          "name": "Create Listing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN_HERE"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Villa 4 pièces à Cocody\",\n  \"description\": \"Belle villa moderne avec jardin, salon spacieux, 4 chambres climatisées\",\n  \"price\": 25000000,\n  \"currency\": \"XOF\",\n  \"category\": \"immobilier\",\n  \"subcategory\": \"villa\",\n  \"type\": \"vente\",\n  \"country\": \"CI\",\n  \"city\": \"Abidjan\",\n  \"address\": \"Cocody, Riviera 3\",\n  \"specifications\": {\n    \"surface\": 200,\n    \"rooms\": 4,\n    \"bathrooms\": 3\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/api/v1/listings",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["api", "v1", "listings"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

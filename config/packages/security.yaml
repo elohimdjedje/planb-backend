@@ -1,0 +1,107 @@
+security:
+    # Hashage des mots de passe
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+            algorithm: auto
+            cost: 12
+
+    # Provider pour charger les utilisateurs
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        # Endpoint de login — géré manuellement par AuthController (avec 2FA)
+        login:
+            pattern: ^/api/v1/auth/login$
+            stateless: true
+            security: false
+
+        # Route /auth/me - PROTÉGÉE par JWT
+        auth_me:
+            pattern: ^/api/v1/auth/me$
+            stateless: true
+            provider: app_user_provider
+            jwt: ~
+
+        # Routes d'auth publiques
+        auth_public:
+            pattern: ^/api/v1/auth/(register|forgot-password|reset-password|refresh-token|verify-email|verify-otp|send-otp|logout)$
+            stateless: true
+            security: false
+
+        # Route 2FA publique (vérification du code OTP)
+        two_factor:
+            pattern: ^/api/v1/2fa/verify$
+            stateless: true
+            security: false
+
+        # Routes publiques LECTURE SEULE (GET uniquement)
+        public_api:
+            pattern: ^/api/v1/(categories|search|webhooks|contact)$
+            stateless: true
+            security: false
+
+        # Profil public vendeur - sans auth
+        public_profile:
+            pattern: ^/api/v1/users/[0-9]+/public-profile$
+            stateless: true
+            security: false
+
+        # API protégée par JWT (inclut listings, reviews, etc.)
+        api:
+            pattern: ^/api
+            stateless: true
+            provider: app_user_provider
+            jwt: ~
+
+        main:
+            lazy: true
+            provider: app_user_provider
+
+    # Règles d'accès
+    access_control:
+        # SÉCURITÉ : admin uniquement par ROLE_ADMIN — vérifié côté serveur
+        # La double protection (access_control + #[IsGranted] dans AdminController) est intentionnelle (défense en profondeur)
+        - { path: ^/api/v1/admin, roles: ROLE_ADMIN }
+        - { path: ^/api/v1/auth/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/auth/register$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/auth/forgot-password$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/auth/reset-password$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/auth/refresh-token$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/auth/logout$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/auth/send-otp$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/auth/verify-otp$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/2fa/verify$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/auth/me$, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/v1/(listings|categories|search|reviews), roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/v1/users/\d+/public-profile$, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/v1/listings/\d+/(view|contact)$, roles: PUBLIC_ACCESS, methods: [POST] }
+        - { path: ^/api/v1/visit-slots/listing/\d+$, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/v1/rooms/listing/\d+$, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/v1/rooms/listing/\d+/available$, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/v1/rooms/\d+$, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/v1/verification/required-documents, roles: IS_AUTHENTICATED_FULLY, methods: [GET] }
+        - { path: ^/api/v1/verification/status$, roles: IS_AUTHENTICATED_FULLY, methods: [GET] }
+        - { path: ^/api/v1/verification/submit$, roles: IS_AUTHENTICATED_FULLY, methods: [POST] }
+        - { path: ^/api/v1/verification/admin, roles: ROLE_ADMIN }
+        - { path: ^/api/v1/listings, roles: IS_AUTHENTICATED_FULLY, methods: [POST, PUT, PATCH, DELETE] }
+        - { path: ^/api/v1/webhooks, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/contact$, roles: PUBLIC_ACCESS, methods: [POST] }
+        - { path: ^/api/v1/contact/admin, roles: ROLE_ADMIN }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+
+when@test:
+    security:
+        password_hashers:
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4  # Test - Performance (inchangé)
+                time_cost: 3
+                memory_cost: 10

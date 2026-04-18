@@ -1,0 +1,9 @@
+# Configuration des providers de paiement
+# Pour activer/désactiver un provider, changez 'enabled' à true/false
+
+parameters:
+    # PayTech - Agrégateur principal (Wave, Orange Money, Free Money, Carte)
+    payment.paytech.enabled: true
+    
+    # KKiaPay - Agrégateur secondaire (MTN, Moov, Wave, Orange Money)
+    payment.kkiapay.enabled: true

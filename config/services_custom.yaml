@@ -1,0 +1,58 @@
+# Configuration personnalisée des services - Plan B v2.0
+# À merger avec config/services.yaml
+
+services:
+    # Service de comptage unique des vues
+    App\Service\ViewCounterService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+            $requestStack: '@request_stack'
+        tags: ['controller.service_arguments']
+    
+    # Repository personnalisé pour les reviews
+    App\Repository\ReviewRepository:
+        factory: ['@doctrine.orm.entity_manager', 'getRepository']
+        arguments:
+            - 'App\Entity\Review'
+        tags: ['doctrine.repository_service']
+    
+    # Configuration pour l'upload d'images
+    App\Service\ImageUploadService:
+        arguments:
+            $uploadDirectory: '%kernel.project_dir%/public/uploads/images'
+            $maxFileSize: 5242880 # 5MB
+            $allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/jpg']
+    
+    # Service d'envoi d'emails (pour notifications avis)
+    App\Service\NotificationService:
+        arguments:
+            $mailer: '@mailer'
+            $templating: '@twig'
+    
+    # Event listener pour les nouveaux avis
+    App\EventListener\ReviewCreatedListener:
+        tags:
+            - { name: 'doctrine.event_listener', event: 'postPersist' }
+
+# Paramètres globaux
+parameters:
+    # Limites annonces
+    listing.free_limit: 4
+    listing.pro_limit: -1  # Illimité
+    
+    # Configuration avis
+    review.comment_max_length: 500
+    review.min_rating: 1
+    review.max_rating: 5
+    
+    # Configuration vues
+    view_counter.cleanup_days: 90
+    view_counter.anonymize_ip: true
+    
+    # Upload
+    upload.max_images_per_listing: 10
+    upload.image_quality: 85  # Pour compression JPEG
+    
+    # Cache
+    cache.review_stats_ttl: 3600  # 1 heure
+    cache.listing_views_ttl: 300  # 5 minutes

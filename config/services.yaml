@@ -1,0 +1,70 @@
+imports:
+    - { resource: payment_providers.yaml }
+
+parameters:
+    app.url: '%env(default:app_url_default:APP_URL)%'
+    app.socketio_url: '%env(default:socketio_url_default:SOCKETIO_URL)%'
+    app_url_default: 'http://localhost:8000'
+    socketio_url_default: 'http://localhost:3001'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+            - '../src/DataFixtures/'
+
+    App\Controller\:
+        resource: '../src/Controller/'
+        tags: ['controller.service_arguments']
+
+    # Event Listeners
+    App\EventListener\SecurityLogListener:
+        tags:
+            - { name: kernel.event_subscriber }
+
+    App\EventListener\SubscriptionExpirationListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
+
+    # CORS Listener pour autoriser les requêtes depuis le frontend
+    App\EventListener\CorsListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse }
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest, priority: 250 }
+
+    # KKiaPay Service - Agrégateur de paiement Mobile Money
+    # DÉSACTIVÉ - En attente d'activation du compte KKiaPay
+    App\Service\KKiaPayService:
+        arguments:
+            $kkiapayPublicKey: '%env(KKIAPAY_PUBLIC_KEY)%'
+            $kkiapayPrivateKey: '%env(KKIAPAY_PRIVATE_KEY)%'
+            $kkiapaySecret: '%env(KKIAPAY_SECRET)%'
+            $kkiapaySandbox: '%env(bool:KKIAPAY_SANDBOX)%'
+            $kkiapayCallbackUrl: '%env(KKIAPAY_CALLBACK_URL)%'
+            $enabled: '%payment.kkiapay.enabled%'
+
+    # PayTech Service - Agrégateur de paiement (Wave, Orange Money, etc.)
+    # ACTIVÉ - Provider principal
+    App\Service\PayTechService:
+        arguments:
+            $paytechApiKey: '%env(PAYTECH_API_KEY)%'
+            $paytechSecretKey: '%env(PAYTECH_SECRET_KEY)%'
+            $paytechEnv: '%env(PAYTECH_ENV)%'
+            $paytechIpnUrl: '%env(PAYTECH_IPN_URL)%'
+            $paytechSuccessUrl: '%env(PAYTECH_SUCCESS_URL)%'
+            $paytechCancelUrl: '%env(PAYTECH_CANCEL_URL)%'
+            $enabled: '%payment.paytech.enabled%'
+
+    # EmailService - Service d'envoi d'emails
+    App\Service\EmailService:
+        arguments:
+            $fromEmail: 'noreply@planb.ci'
+            $fromName: 'Plan B'
+            $appUrl: 'http://localhost:5173'

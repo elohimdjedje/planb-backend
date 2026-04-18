@@ -1,0 +1,12 @@
+framework:
+    rate_limiter:
+        login:
+            policy: 'no_limit'
+        register:
+            policy: 'no_limit'
+        send_sms:
+            policy: 'no_limit'
+        two_factor_verify:
+            policy: 'no_limit'
+        password_reset:
+            policy: 'no_limit'

@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # Base de données PostgreSQL
+  database:
+    image: postgres:15-alpine
+    container_name: planb_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: planb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - planb_network
+
+  # Mailpit - SMTP catcher for local development
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: planb_mailpit
+    restart: always
+    ports:
+      - "8025:8025" # Web UI
+      - "1025:1025" # SMTP
+    networks:
+      - planb_network
+
+  # PHP-FPM Application
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: planb_php
+    restart: always
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - database
+      - mailpit
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://postgres:root@database:5432/planb?serverVersion=15&charset=utf8
+      APP_ENV: dev
+      APP_DEBUG: 1
+      CORS_ALLOW_ORIGIN: '^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$'
+      JWT_PASSPHRASE: 'planb_jwt_secret_key_that_is_long_enough_for_hs256_algorithm!'
+      MAILER_DSN: smtp://mailpit:1025
+    networks:
+      - planb_network
+
+  # Nginx Web Server
+  nginx:
+    image: nginx:alpine
+    container_name: planb_api
+    restart: always
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    networks:
+      - planb_network
+
+  # Adminer - Interface web pour gérer la base de données
+  adminer:
+    image: adminer:latest
+    container_name: planb_adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+    networks:
+      - planb_network
+
+volumes:
+  postgres_data:
+
+networks:
+  planb_network:
+    driver: bridge

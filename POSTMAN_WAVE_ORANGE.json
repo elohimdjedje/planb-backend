@@ -1,0 +1,478 @@
+{
+  "info": {
+    "name": "Plan B - Wave & Orange Money",
+    "description": "Collection Postman pour tester l'intégration des paiements Wave et Orange Money",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "order_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('jwt_token', jsonData.token);",
+                  "    console.log('Token JWT sauvegardé:', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"client@test.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Se connecter et récupérer le token JWT"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Orders - Wave",
+      "item": [
+        {
+          "name": "Créer commande Wave",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('order_id', jsonData.order_id);",
+                  "    console.log('Order ID:', jsonData.order_id);",
+                  "    console.log('Payment Link:', jsonData.payment_link);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider_id\": 2,\n  \"amount\": 10000,\n  \"payment_method\": \"wave\",\n  \"description\": \"Test paiement Wave - Service de développement\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/create",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "create"
+              ]
+            },
+            "description": "Créer une commande et obtenir le lien de paiement Wave"
+          },
+          "response": []
+        },
+        {
+          "name": "Simuler callback Wave (success)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/wave/callback/{{order_id}}?status=success",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "wave",
+                "callback",
+                "{{order_id}}"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "success"
+                }
+              ]
+            },
+            "description": "Simuler un callback Wave réussi (en développement)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Orders - Orange Money",
+      "item": [
+        {
+          "name": "Créer commande Orange Money",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('order_id', jsonData.order_id);",
+                  "    console.log('Order ID:', jsonData.order_id);",
+                  "    console.log('Payment URL:', jsonData.payment_url);",
+                  "    console.log('QR Code:', jsonData.qr_code ? 'Disponible' : 'Non disponible');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider_id\": 2,\n  \"amount\": 5000,\n  \"payment_method\": \"orange_money\",\n  \"description\": \"Test paiement Orange Money - Consultation\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/create",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "create"
+              ]
+            },
+            "description": "Créer une commande et obtenir le QR code Orange Money"
+          },
+          "response": []
+        },
+        {
+          "name": "Simuler callback Orange Money (success)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/orange-money/callback/{{order_id}}?status=success",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "orange-money",
+                "callback",
+                "{{order_id}}"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "success"
+                }
+              ]
+            },
+            "description": "Simuler un callback Orange Money réussi (en développement)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Orders - Gestion",
+      "item": [
+        {
+          "name": "Statut d'une commande",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/{{order_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "{{order_id}}",
+                "status"
+              ]
+            },
+            "description": "Obtenir le statut détaillé d'une commande"
+          },
+          "response": []
+        },
+        {
+          "name": "Historique - Toutes les commandes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/history?type=all",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "all",
+                  "description": "all, client ou provider"
+                }
+              ]
+            },
+            "description": "Obtenir toutes les commandes (en tant que client ou prestataire)"
+          },
+          "response": []
+        },
+        {
+          "name": "Historique - En tant que client",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/history?type=client",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "client"
+                }
+              ]
+            },
+            "description": "Obtenir les commandes où je suis le client"
+          },
+          "response": []
+        },
+        {
+          "name": "Historique - En tant que prestataire",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/history?type=provider",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "provider"
+                }
+              ]
+            },
+            "description": "Obtenir les commandes où je suis le prestataire"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tests - Montants variés",
+      "item": [
+        {
+          "name": "Wave - Petit montant (1000 XOF)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider_id\": 2,\n  \"amount\": 1000,\n  \"payment_method\": \"wave\",\n  \"description\": \"Test petit montant\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/create",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Orange Money - Moyen montant (25000 XOF)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider_id\": 2,\n  \"amount\": 25000,\n  \"payment_method\": \"orange_money\",\n  \"description\": \"Test moyen montant\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/create",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Wave - Grand montant (100000 XOF)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider_id\": 2,\n  \"amount\": 100000,\n  \"payment_method\": \"wave\",\n  \"description\": \"Test grand montant\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/create",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "orders",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

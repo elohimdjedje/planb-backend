@@ -1,0 +1,23 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block content %}
+    <h1 style="color: #FF6B35; margin-top: 0;">Code de vérification</h1>
+    
+    <p>Bonjour <strong>{{ user.firstName }}</strong>,</p>
+    
+    <p>Vous venez de vous connecter à votre compte Plan B. Pour confirmer votre identité, entrez le code ci-dessous :</p>
+    
+    <div class="code-box">
+        {{ code }}
+    </div>
+    
+    <p style="text-align: center;">
+        <strong>Ce code est valide pendant 5 minutes.</strong>
+    </p>
+    
+    <p style="background-color: #fff3cd; padding: 15px; border-radius: 5px; border-left: 4px solid #ffc107;">
+        <strong>⚠️ Sécurité :</strong> Si vous n'êtes pas à l'origine de cette connexion, changez immédiatement votre mot de passe.
+    </p>
+    
+    <p>Cordialement,<br><strong>L'équipe Plan B</strong></p>
+{% endblock %}
